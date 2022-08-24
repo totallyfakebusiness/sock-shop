@@ -1,4 +1,3 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,6 +18,13 @@ spec:
         prometheus.io/scrape: "false"
     spec:
       containers:
+      - name: rabbitmq-exporter
+        image: kbudde/rabbitmq-exporter
+        ports:
+        - containerPort: 9090
+          name: exporter
+        securityContext:
+          readOnlyRootFilesystem: true
       - name: rabbitmq
         image: rabbitmq:3.6.8-management
         ports:
@@ -29,17 +35,12 @@ spec:
         securityContext:
           capabilities:
             drop:
-              - all
+            - all
             add:
-              - CHOWN
-              - SETGID
-              - SETUID
-              - DAC_OVERRIDE
+            - CHOWN
+            - SETGID
+            - SETUID
+            - DAC_OVERRIDE
           readOnlyRootFilesystem: true
-      - name: rabbitmq-exporter
-        image: kbudde/rabbitmq-exporter
-        ports:
-        - containerPort: 9090
-          name: exporter
       nodeSelector:
         beta.kubernetes.io/os: linux
